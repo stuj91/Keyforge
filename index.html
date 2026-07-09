@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keyforge — Password Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #191b1c;
+    --panel: #232626;
+    --panel-raised: #2a2d2d;
+    --brass: #c9a227;
+    --brass-dim: #8a7020;
+    --bone: #e9e6dc;
+    --bone-dim: #9a988f;
+    --weak: #a3503f;
+    --fair: #b8863a;
+    --good: #7a9457;
+    --strong: #4f8a63;
+    --hairline: #3a3d3c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--bone);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 32px;
+    position: relative;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border: 1px solid #2f3231;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--brass-dim);
+    text-transform: uppercase;
+    margin: 0 0 4px;
+  }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0 0 6px;
+    color: var(--bone);
+  }
+
+  .pattern-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--bone-dim);
+    margin: 0 0 24px;
+    letter-spacing: 0.5px;
+  }
+  .pattern-hint span { color: var(--brass-dim); }
+
+  .readout-wrap {
+    background: #141616;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .readout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tile {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--brass);
+    background: #1c1e1e;
+    border: 1px solid #34302088;
+    border-radius: 3px;
+    width: 26px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: settle 0.28s ease backwards;
+  }
+
+  @keyframes settle {
+    0% { transform: translateY(-6px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .readout-empty {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--bone-dim);
+    font-size: 13px;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  button {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--hairline);
+    background: var(--panel-raised);
+    color: var(--bone);
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  button:hover { border-color: var(--brass-dim); background: #2f3230; }
+  button:active { transform: scale(0.98); }
+
+  .btn-primary {
+    flex: 2;
+    background: var(--brass);
+    border-color: var(--brass);
+    color: #1c1a10;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #d9b03a; border-color: #d9b03a; }
+
+  .btn-secondary { flex: 1; }
+
+  .copied-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--good);
+    text-align: center;
+    height: 14px;
+    margin: -14px 0 18px;
+    letter-spacing: 1px;
+  }
+
+  .strength-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+
+  .strength-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--bone-dim);
+    text-transform: uppercase;
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  .gauge {
+    flex: 1;
+    display: flex;
+    gap: 3px;
+    height: 6px;
+  }
+
+  .gauge-seg {
+    flex: 1;
+    background: var(--hairline);
+    border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+
+  .strength-word {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    width: 64px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--brass-dim);
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 20px;
+  }
+
+  .toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 2px;
+    border-bottom: 1px solid #2c2e2d;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-row span { font-size: 14px; }
+  .toggle-row .hint { display: block; font-size: 12px; color: var(--bone-dim); margin-top: 2px; }
+
+  .switch {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .switch input { opacity: 0; width: 0; height: 0; }
+
+  .slider-toggle {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #3a3d3c;
+    border-radius: 12px;
+    transition: background 0.15s ease;
+  }
+
+  .slider-toggle::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; top: 3px;
+    background: var(--bone);
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+  }
+
+  input:checked + .slider-toggle { background: var(--brass-dim); }
+  input:checked + .slider-toggle::before { transform: translateX(16px); background: var(--brass); }
+
+  .footnote {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--bone-dim);
+    text-align: center;
+    margin-top: 22px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <p class="eyebrow">Keyforge</p>
+  <h1>Password generator</h1>
+  <p class="pattern-hint">Pattern: <span>Wordword##!!</span> — capitalized word, lowercase word, two digits, two symbols</p>
+
+  <div class="readout-wrap">
+    <div class="readout" id="readout">
+      <span class="readout-empty">Press generate to forge a password</span>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn-primary" id="generateBtn">Generate</button>
+    <button class="btn-secondary" id="copyBtn">Copy</button>
+  </div>
+  <p class="copied-tag" id="copiedTag"></p>
+
+  <div class="strength-row">
+    <span class="strength-label">Strength</span>
+    <div class="gauge" id="gauge">
+      <div class="gauge-seg"></div>
+      <div class="gauge-seg"></div>
+      <div class="gauge-seg"></div>
+      <div class="gauge-seg"></div>
+    </div>
+    <span class="strength-word" id="strengthWord">—</span>
+  </div>
+
+  <p class="section-label">Options</p>
+  <div class="toggle-list">
+    <div class="toggle-row">
+      <span>Separator between words<span class="hint">joins with a dash, e.g. Correct-horse</span></span>
+      <label class="switch">
+        <input type="checkbox" id="toggleSeparator">
+        <span class="slider-toggle"></span>
+      </label>
+    </div>
+  </div>
+
+  <p class="footnote">Generated locally in your browser · never stored, never sent anywhere</p>
+</div>
+
+<script>
+  const WORDS = [
+    'anchor','ash','autumn','badger','banner','barrel','basil','beacon','bench','birch',
+    'blanket','bloom','boulder','bramble','breeze','brook','bronze','canyon','cedar','chalk',
+    'charcoal','cider','clover','coast','cobalt','comet','copper','coral','cotton','crater',
+    'creek','crimson','crystal','current','dawn','delta','desert','dune','ember','falcon',
+    'feather','fern','fjord','flint','forest','fossil','fountain','frost','garden','glacier',
+    'granite','gravel','harbor','harvest','hazel','heather','hollow','honey','hunter','indigo',
+    'island','ivory','jasper','jungle','kestrel','ladder','lagoon','lantern','laurel','lichen',
+    'lily','linen','lotus','lumber','lynx','magnet','maple','marble','marsh','meadow',
+    'meridian','mesa','mint','mirror','mist','moss','motion','nectar','needle','nickel',
+    'nimbus','nutmeg','oak','oasis','obsidian','ocean','olive','onyx','opal','orbit',
+    'orchard','osprey','otter','paddle','pebble','pepper','petal','pewter','pine','plateau',
+    'plum','pollen','poplar','prairie','quartz','quiver','rabbit','raven','reef','ridge',
+    'river','robin','rosemary','saddle','saffron','sage','sandstone','sapphire','savanna','sequoia',
+    'shadow','shale','shore','sierra','silver','sky','slate','sorrel','spark','sparrow',
+    'spring','spruce','stag','starling','stone','storm','stream','summit','sunrise','swallow',
+    'sycamore','tangerine','tarragon','tavern','tempest','terrace','thicket','thistle','thunder','timber',
+    'topaz','torch','trail','trellis','tundra','turquoise','valley','velvet','vernal','violet',
+    'walnut','warbler','wildfire','willow','windmill','winter','wren','zephyr'
+  ];
+  const SYMBOLS = '!@#$%^&*-_=+?';
+
+  const toggleSeparator = document.getElementById('toggleSeparator');
+  const readout = document.getElementById('readout');
+  const generateBtn = document.getElementById('generateBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const copiedTag = document.getElementById('copiedTag');
+  const gaugeSegs = document.querySelectorAll('.gauge-seg');
+  const strengthWord = document.getElementById('strengthWord');
+
+  let currentPassword = '';
+
+  function secureRandomInt(max) {
+    const arr = new Uint32Array(1);
+    const limit = Math.floor(0xFFFFFFFF / max) * max;
+    let val;
+    do { crypto.getRandomValues(arr); val = arr[0]; } while (val >= limit);
+    return val % max;
+  }
+
+  function pickWord() {
+    return WORDS[secureRandomInt(WORDS.length)];
+  }
+
+  function capitalize(w) {
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }
+
+  function generatePassword() {
+    let w1 = pickWord();
+    let w2 = pickWord();
+    while (w2 === w1) w2 = pickWord();
+
+    const sep = toggleSeparator.checked ? '-' : '';
+    const digits = String(secureRandomInt(10)) + String(secureRandomInt(10));
+    const sym1 = SYMBOLS[secureRandomInt(SYMBOLS.length)];
+    let sym2 = SYMBOLS[secureRandomInt(SYMBOLS.length)];
+    while (sym2 === sym1) sym2 = SYMBOLS[secureRandomInt(SYMBOLS.length)];
+
+    return capitalize(w1) + sep + w2 + digits + sym1 + sym2;
+  }
+
+  function renderPassword(pw) {
+    readout.innerHTML = '';
+    if (!pw) {
+      readout.innerHTML = '<span class="readout-empty">Press generate to forge a password</span>';
+      return;
+    }
+    pw.split('').forEach((ch, i) => {
+      const tile = document.createElement('span');
+      tile.className = 'tile';
+      tile.textContent = ch;
+      tile.style.animationDelay = (i * 12) + 'ms';
+      readout.appendChild(tile);
+    });
+  }
+
+  function calcStrength(pw) {
+    let classes = 0;
+    if (/[A-Z]/.test(pw)) classes++;
+    if (/[a-z]/.test(pw)) classes++;
+    if (/[0-9]/.test(pw)) classes++;
+    if (/[^A-Za-z0-9]/.test(pw)) classes++;
+
+    if (pw.length >= 14 && classes === 4) return 4;
+    if (pw.length >= 10 && classes >= 3) return 3;
+    if (pw.length >= 6 && classes >= 2) return 2;
+    return 1;
+  }
+
+  function renderStrength(score) {
+    const labels = ['—', 'weak', 'fair', 'good', 'strong'];
+    const colors = ['', 'var(--weak)', 'var(--fair)', 'var(--good)', 'var(--strong)'];
+    gaugeSegs.forEach((seg, i) => {
+      seg.style.background = i < score ? colors[score] : 'var(--hairline)';
+    });
+    strengthWord.textContent = labels[score];
+    strengthWord.style.color = score ? colors[score] : 'var(--bone-dim)';
+  }
+
+  function generate() {
+    currentPassword = generatePassword();
+    renderPassword(currentPassword);
+    renderStrength(calcStrength(currentPassword));
+    copiedTag.textContent = '';
+  }
+
+  toggleSeparator.addEventListener('change', generate);
+  generateBtn.addEventListener('click', generate);
+
+  copyBtn.addEventListener('click', async () => {
+    if (!currentPassword) return;
+    try {
+      await navigator.clipboard.writeText(currentPassword);
+      copiedTag.textContent = 'COPIED TO CLIPBOARD';
+      setTimeout(() => { copiedTag.textContent = ''; }, 1800);
+    } catch (e) {
+      copiedTag.textContent = 'COPY FAILED — SELECT MANUALLY';
+    }
+  });
+
+  generate();
+</script>
+
+</body>
+</html>
