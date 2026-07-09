@@ -3,23 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keyforge — Password Generator</title>
+<title>Minutes — Meeting Notes</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap');
 
   :root {
-    --bg: #191b1c;
-    --panel: #232626;
-    --panel-raised: #2a2d2d;
-    --brass: #c9a227;
-    --brass-dim: #8a7020;
-    --bone: #e9e6dc;
-    --bone-dim: #9a988f;
-    --weak: #a3503f;
-    --fair: #b8863a;
-    --good: #7a9457;
-    --strong: #4f8a63;
-    --hairline: #3a3d3c;
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --border: #e5e8ee;
+    --text: #12151c;
+    --text-soft: #6b7280;
+    --text-faint: #9aa1ac;
+    --accent: #2954a3;
+    --accent-hover: #1f4184;
+    --accent-soft: #eaf0fa;
+    --blue: #2954a3;
+    --blue-soft: #eaf0fa;
+    --green: #157a4a;
+    --green-soft: #e7f5ed;
+    --amber: #a5620a;
+    --amber-soft: #fbf0e0;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+    --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
   }
 
   * { box-sizing: border-box; }
@@ -27,697 +32,635 @@
   body {
     margin: 0;
     background: var(--bg);
-    color: var(--bone);
+    color: var(--text);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
+    padding: 48px 20px 80px;
   }
 
-  .card {
-    width: 100%;
-    max-width: 520px;
-    background: var(--panel);
-    border: 1px solid var(--hairline);
-    border-radius: 6px;
-    padding: 32px;
-    position: relative;
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
   }
 
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 10px; left: 10px; right: 10px; bottom: 10px;
-    border: 1px solid #2f3231;
-    border-radius: 3px;
-    pointer-events: none;
-  }
-
-  .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--brass-dim);
-    text-transform: uppercase;
-    margin: 0 0 4px;
-  }
-
-  h1 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin: 0 0 6px;
-    color: var(--bone);
-  }
-
-  .pattern-hint {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--bone-dim);
-    margin: 0 0 24px;
-    letter-spacing: 0.5px;
-  }
-  .pattern-hint span { color: var(--brass-dim); }
-
-  .readout-wrap {
-    background: #141616;
-    border: 1px solid var(--hairline);
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 18px;
-  }
-
-  .readout {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    min-height: 40px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .tile {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--brass);
-    background: #1c1e1e;
-    border: 1px solid #34302088;
-    border-radius: 3px;
-    width: 26px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: settle 0.28s ease backwards;
-  }
-
-  @keyframes settle {
-    0% { transform: translateY(-6px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-  }
-
-  .readout-empty {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--bone-dim);
-    font-size: 13px;
-  }
-
-  .actions-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  button {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid var(--hairline);
-    background: var(--panel-raised);
-    color: var(--bone);
-    padding: 10px 16px;
-    cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
-  }
-
-  button:hover { border-color: var(--brass-dim); background: #2f3230; }
-  button:active { transform: scale(0.98); }
-
-  .btn-primary {
-    flex: 2;
-    background: var(--brass);
-    border-color: var(--brass);
-    color: #1c1a10;
-    font-weight: 600;
-  }
-  .btn-primary:hover { background: #d9b03a; border-color: #d9b03a; }
-
-  .btn-secondary { flex: 1; }
-
-  .copied-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--good);
-    text-align: center;
-    height: 14px;
-    margin: -14px 0 18px;
-    letter-spacing: 1px;
-  }
-
-  .strength-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 26px;
-  }
-
-  .strength-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: var(--bone-dim);
-    text-transform: uppercase;
-    width: 60px;
-    flex-shrink: 0;
-  }
-
-  .gauge {
-    flex: 1;
-    display: flex;
-    gap: 3px;
-    height: 6px;
-  }
-
-  .gauge-seg {
-    flex: 1;
-    background: var(--hairline);
-    border-radius: 2px;
-    transition: background 0.2s ease;
-  }
-
-  .strength-word {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    width: 64px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--brass-dim);
-    text-transform: uppercase;
-    margin: 0 0 12px;
-    border-top: 1px solid var(--hairline);
-    padding-top: 20px;
-  }
-
-  .toggle-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .toggle-row {
+  .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 2px;
-    border-bottom: 1px solid #2c2e2d;
+    margin-bottom: 32px;
   }
-  .toggle-row:last-child { border-bottom: none; }
 
-  .toggle-row span { font-size: 14px; }
-  .toggle-row .hint { display: block; font-size: 12px; color: var(--bone-dim); margin-top: 2px; }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-  .switch {
-    position: relative;
-    width: 38px;
-    height: 22px;
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--accent);
     flex-shrink: 0;
   }
 
-  .switch input { opacity: 0; width: 0; height: 0; }
+  .brand h1 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.2px;
+  }
 
-  .slider-toggle {
-    position: absolute;
+  .brand p {
+    font-size: 12.5px;
+    color: var(--text-faint);
+    margin: 0;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card.accent-blue { border-left: 3px solid var(--blue); }
+  .card.accent-green { border-left: 3px solid var(--green); }
+  .card.accent-amber { border-left: 3px solid var(--amber); }
+
+  .card-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 22px 0 18px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .field-row:last-child { margin-bottom: 0; }
+
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-soft);
+  }
+
+  input[type="text"], input[type="date"], textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    color: var(--text);
+    background: #fbfbfc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--text-faint); }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: #fff;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 84px;
+    line-height: 1.6;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 16px;
+  }
+
+  .section-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-icon.blue { background: var(--blue-soft); }
+  .section-icon.green { background: var(--green-soft); }
+  .section-icon.amber { background: var(--amber-soft); }
+  .section-icon svg { width: 14px; height: 14px; }
+
+  .section-header h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .action-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .action-count {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--amber);
+    background: var(--amber-soft);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .action-col-labels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 130px 30px;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .action-col-labels span {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 130px 30px;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .action-row input { font-size: 13.5px; padding: 8px 10px; }
+
+  .remove-row {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    font-size: 18px;
     cursor: pointer;
-    inset: 0;
-    background: #3a3d3c;
-    border-radius: 12px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .remove-row:hover { background: #fdecec; color: #c0362f; }
+
+  .add-row-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    background: transparent;
+    border: 1px dashed #c7d4e8;
+    border-radius: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 4px;
     transition: background 0.15s ease;
   }
+  .add-row-btn:hover { background: var(--accent-soft); }
 
-  .slider-toggle::before {
-    content: '';
-    position: absolute;
-    width: 16px; height: 16px;
-    left: 3px; top: 3px;
-    background: var(--bone);
-    border-radius: 50%;
-    transition: transform 0.15s ease;
+  .generate-btn {
+    width: 100%;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    margin: 8px 0 32px;
+    box-shadow: var(--shadow-md);
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  .generate-btn:hover { background: var(--accent-hover); }
+  .generate-btn:active { transform: scale(0.99); }
+
+  .summary-wrap { display: none; }
+  .summary-wrap.visible { display: block; }
+
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 30px 28px;
+    box-shadow: var(--shadow-md);
   }
 
-  input:checked + .slider-toggle { background: var(--brass-dim); }
-  input:checked + .slider-toggle::before { transform: translateX(16px); background: var(--brass); }
+  .summary-eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
 
-  .footnote {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--bone-dim);
-    text-align: center;
+  .summary-card h2.summary-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 21px;
+    font-weight: 800;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+
+  .summary-meta {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin: 0 0 22px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-section { margin-bottom: 20px; }
+  .summary-section:last-child { margin-bottom: 0; }
+
+  .summary-section-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .summary-section-label.blue { color: var(--blue); }
+  .summary-section-label.green { color: var(--green); }
+  .summary-section-label.amber { color: var(--amber); }
+
+  .summary-section-label .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .summary-section-label.blue .dot { background: var(--blue); }
+  .summary-section-label.green .dot { background: var(--green); }
+  .summary-section-label.amber .dot { background: var(--amber); }
+
+  .summary-text {
+    font-size: 14.5px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+
+  .empty-note { color: var(--text-faint); font-size: 14px; }
+
+  .copy-btn {
+    display: block;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px;
+    cursor: pointer;
     margin-top: 22px;
-    letter-spacing: 0.5px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .copy-btn:hover { background: #f6f7f9; border-color: #d0d5dd; }
+
+  .copied-tag {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+    text-align: center;
+    height: 14px;
+    margin-top: 10px;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .summary-table th {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-soft);
+    text-align: left;
+    padding: 0 10px 8px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .summary-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table td.who-cell {
+    white-space: nowrap;
+  }
+  .who-tag {
+    font-size: 12px;
+    color: var(--amber);
+    background: var(--amber-soft);
+    padding: 2px 9px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; }
+    .action-row, .action-col-labels { grid-template-columns: 1fr; }
+    .action-col-labels { display: none; }
+    .summary-table, .summary-table thead, .summary-table tbody, .summary-table tr, .summary-table td { display: block; width: 100%; }
+    .summary-table th { display: none; }
+    .summary-table td { border-bottom: none; padding: 4px 0; }
+    .summary-table tr { padding: 10px 0; border-bottom: 1px solid var(--border); }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 </head>
 <body>
 
-<div class="card">
-  <p class="eyebrow">Keyforge</p>
-  <h1>Password generator</h1>
-
-  <div class="readout-wrap">
-    <div class="readout" id="readout">
-      <span class="readout-empty">Press generate to forge a password</span>
+<div class="page">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <h1>Minutes</h1>
+        <p>Compose once, share anywhere</p>
+      </div>
     </div>
   </div>
 
-  <div class="actions-row">
-    <button class="btn-primary" id="generateBtn">Generate</button>
-    <button class="btn-secondary" id="copyBtn">Copy</button>
-  </div>
-  <p class="copied-tag" id="copiedTag"></p>
-
-  <div class="strength-row">
-    <span class="strength-label">Strength</span>
-    <div class="gauge" id="gauge">
-      <div class="gauge-seg"></div>
-      <div class="gauge-seg"></div>
-      <div class="gauge-seg"></div>
-      <div class="gauge-seg"></div>
+  <div class="card">
+    <div class="field-row">
+      <div class="field full">
+        <label for="meetingTitle">Meeting title</label>
+        <input type="text" id="meetingTitle" placeholder="Q3 planning sync">
+      </div>
     </div>
-    <span class="strength-word" id="strengthWord">—</span>
-  </div>
-
-  <p class="section-label">Options</p>
-  <div class="toggle-list">
-    <div class="toggle-row">
-      <span>Separator between words<span class="hint">joins with a dash, e.g. Correct-horse</span></span>
-      <label class="switch">
-        <input type="checkbox" id="toggleSeparator">
-        <span class="slider-toggle"></span>
-      </label>
+    <div class="field-row">
+      <div class="field">
+        <label for="meetingDate">Date</label>
+        <input type="date" id="meetingDate">
+      </div>
+      <div class="field">
+        <label for="attendees">Attendees</label>
+        <input type="text" id="attendees" placeholder="Sam, Priya, Jordan">
+      </div>
     </div>
   </div>
 
+  <div class="card accent-blue">
+    <div class="section-header">
+      <div class="section-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2954a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h2>Discussion &amp; decisions</h2>
+    </div>
+    <textarea id="discussion" placeholder="What was covered, key points raised, and what was decided..."></textarea>
+  </div>
 
+  <div class="card accent-amber">
+    <div class="action-header">
+      <div class="section-header" style="margin-bottom:0;">
+        <div class="section-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#a5620a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        </div>
+        <h2>Action Items</h2>
+      </div>
+      <span class="action-count" id="actionCount">2</span>
+    </div>
+    <div class="action-col-labels">
+      <span>Discussion</span>
+      <span>Action required</span>
+      <span>Who</span>
+      <span></span>
+    </div>
+    <div id="actionRows"></div>
+    <button class="add-row-btn" id="addRowBtn">+ Add action item</button>
+  </div>
+
+  <button class="generate-btn" id="generateBtn">Generate summary</button>
+
+  <div class="summary-wrap" id="summaryWrap">
+    <div class="summary-card">
+      <p class="summary-eyebrow">Meeting summary</p>
+      <h2 class="summary-title" id="summaryTitle">Meeting title</h2>
+      <p class="summary-meta" id="summaryMeta"></p>
+      <div id="summaryContent"></div>
+      <button class="copy-btn" id="exportBtn">Export summary (.docx)</button>
+      <p class="copied-tag" id="copiedTag"></p>
+    </div>
+  </div>
 </div>
 
 <script>
-  const WORDS = [
-    'ability','able','about','above','absolute','abstract','abuse','academic','academy','accept',
-    'accepted','access','accident','account','accounts','accuracy','accurate','achieve','achieved',
-    'acid','across','acting','action','actions','active','activity','actor','acts','actual',
-    'actually','adam','adams','adapter','added','adding','addition','address','admin','adobe',
-    'adopted','adoption','adult','adults','advance','advanced','advice','advisor','advisory',
-    'affairs','affect','affected','africa','african','after','again','against','aged','agencies',
-    'agency','agenda','agent','agents','ages','agree','agreed','ahead','aids','aircraft','airline',
-    'airlines','airport','alabama','alan','alarm','alaska','album','albums','alcohol','alert',
-    'alerts','alex','alive','allen','alliance','allow','allowed','allowing','allows','almost',
-    'alone','along','alpha','already','also','although','alumni','always','amateur','amazing',
-    'amazon','amended','america','american','among','amount','amounts','analysis','analyst',
-    'ancient','anderson','andrew','andy','angel','angeles','angle','animal','animals','anime',
-    'anne','annual','another','answer','answers','anthony','anti','antique','antiques','antonio',
-    'anyone','anything','anytime','anyway','anywhere','apache','apart','apparel','appeal','appear',
-    'appeared','appears','appendix','apple','applied','applies','apply','approach','approval',
-    'approved','april','arab','archive','archives','area','areas','argument','arizona','arkansas',
-    'arms','army','around','array','article','articles','artist','artists','arts','asia','asian',
-    'asked','asking','aspects','assembly','asset','assets','assigned','assist','assume','atlanta',
-    'atlantic','atom','attached','attack','attacks','attempt','attend','attorney','auction',
-    'auctions','audience','audio','audit','august','austin','austria','author','authors','auto',
-    'avatar','avenue','average','aviation','avoid','award','awards','aware','away','babe','babes',
-    'baby','back','backup','bags','balance','ball','band','bands','bang','bank','banking','banks',
-    'banner','barbara','bargain','bars','base','baseball','based','basic','basis','basket',
-    'bass','bath','bathroom','battery','battle','beach','bear','bears','beat','beauty','became',
-    'because','become','becomes','becoming','bedroom','beds','been','beer','before','began',
-    'begin','begins','behalf','behavior','behind','being','belgium','believe','bell','below',
-    'belt','benefit','benefits','berlin','best','beta','better','betting','between','beyond',
-    'bible','bidding','bids','biggest','bike','bill','billion','bills','binding','biology',
-    'bird','birds','birth','birthday','bits','black','blank','blind','block','blocks','blog',
-    'blogger','blogs','blonde','blood','blow','blue','blues','board','boards','boat','bodies',
-    'body','bold','bond','bone','bonus','book','booking','bookmark','books','boot','boots',
-    'border','born','boston','both','bottle','bottom','bought','bound','bowl','boxes','boys',
-    'brain','branch','brand','brands','brazil','break','breaking','breaks','breast','brian',
-    'bridge','brief','bright','bring','bringing','brings','britain','british','broad','broken',
-    'brother','brothers','brought','brown','browse','browser','bruce','buddy','budget','buffalo',
-    'bugs','build','building','built','bulk','bulletin','bureau','bush','business','busy','button',
-    'buyer','buyers','buying','bytes','cabinet','cable','cables','cache','cafe','cake','calendar',
-    'call','called','calling','calls','came','camera','cameras','camp','campaign','camping',
-    'campus','canada','canadian','cancel','cancer','canon','capable','capacity','cape','capital',
-    'captain','capture','carbon','card','cards','care','career','careers','carolina','carried',
-    'carrier','carry','carrying','cars','cart','cartoon','case','cases','cash','casino','casinos',
-    'cast','castle','catalog','catch','category','catholic','caught','cause','caused','causes',
-    'cell','cells','cellular','census','cent','center','centers','central','centre','century',
-    'certain','chain','chair','chairman','chamber','chance','change','changed','changes','changing',
-    'channel','channels','chapter','char','charge','charged','charges','charles','chart','charter',
-    'charts','chat','cheap','cheats','check','checking','checkout','checks','cheese','chemical',
-    'chicago','chicken','chief','child','children','china','chinese','chip','choice','choices',
-    'choose','chosen','chris','christ','church','cinema','circle','circuit','cisco','cities',
-    'citizen','citizens','city','civil','claim','claims','clark','class','classes','classic',
-    'classics','clean','cleaning','clear','clearly','click','clicking','client','clients','climate',
-    'clinical','clip','clips','clock','close','closed','closing','clothes','clothing','club',
-    'clubs','cnet','coach','coast','code','codes','coffee','coins','cold','collect','college',
-    'colleges','color','colorado','colors','colour','columbia','columbus','column','columns',
-    'combined','come','comedy','comes','comfort','comic','comics','coming','command','commands',
-    'comment','comments','commerce','commit','common','compact','company','compare','compared',
-    'complete','complex','computer','concept','concepts','concern','concerns','concert','concrete',
-    'conduct','confirm','conflict','congress','connect','consent','consider','consists','console',
-    'const','constant','consumer','contact','contacts','contain','contains','content','contents',
-    'contest','context','continue','contract','contrast','control','controls','convert','cook',
-    'cookies','cooking','cool','copies','copy','core','corner','correct','cost','costa','costs',
-    'cotton','could','council','count','counter','counties','country','county','couple','course',
-    'courses','court','courts','cover','coverage','covered','covers','crack','craft','crafts',
-    'crazy','cream','create','created','creating','creation','creative','credit','credits',
-    'creek','crew','crime','criminal','crisis','criteria','critical','cross','crown','cruise',
-    'cruises','crystal','cultural','culture','currency','current','custom','customer','cute',
-    'cutting','cycle','czech','daily','dakota','dallas','damage','dance','daniel','dark','data',
-    'database','date','dates','dating','daughter','dave','david','davis','days','dead','deal',
-    'dealer','dealers','dealing','deals','dean','dear','death','debate','debian','debt','december',
-    'decide','decided','decision','deck','deep','default','defense','define','defined','degree',
-    'degrees','delaware','delay','delete','deliver','delivery','dell','delta','deluxe','demand',
-    'demo','denmark','density','dental','denver','depends','deposit','depth','derived','describe',
-    'design','designed','designer','designs','desire','desk','desktop','desktops','despite',
-    'detail','detailed','details','detroit','devel','develop','device','devices','diabetes',
-    'dial','diamond','died','diego','diet','diff','digital','dining','dinner','direct','directed',
-    'directly','director','dirty','disabled','disaster','disc','discount','discover','discuss',
-    'disease','diseases','dish','disk','disney','display','displays','distance','district',
-    'division','doctor','doctors','document','does','dogs','doing','dollar','dollars','dolls',
-    'domain','domains','domestic','donate','done','dont','door','doors','dose','double','doubt',
-    'douglas','down','download','downtown','draft','dragon','drama','draw','drawing','dream',
-    'dreams','dress','drink','drinking','drive','driven','driver','drivers','drives','driving',
-    'drop','drug','drugs','dual','duration','during','dutch','duties','duty','dvds','dynamic',
-    'each','eagle','earlier','early','earn','earnings','earth','easier','easily','east','eastern',
-    'easy','eating','ebay','echo','economic','economy','edge','edit','edited','editing','edition',
-    'editions','editor','editors','edward','effect','effects','effort','efforts','egypt','eight',
-    'either','elected','election','electric','element','elements','eligible','else','email',
-    'empire','employed','employee','employer','empty','enable','enabled','ended','ending','ends',
-    'energy','engine','engineer','engines','england','english','enhance','enhanced','enjoy',
-    'enlarge','enough','ensure','enter','entered','entire','entitled','entity','entries','entry',
-    'epinions','episode','epson','equal','equity','eric','ericsson','error','errors','estate',
-    'estimate','ethics','ethnic','euro','europe','european','evaluate','even','evening','event',
-    'events','ever','every','everyone','evidence','evil','exact','exactly','exam','example',
-    'examples','except','excess','exchange','exciting','exercise','exist','existing','exists',
-    'exit','expand','expect','expected','expenses','expert','experts','explain','explore','explorer',
-    'export','exposure','express','extended','extent','external','extra','extreme','eyes','fabric',
-    'face','facility','fact','factor','factors','factory','facts','faculty','fail','failed',
-    'failure','fair','faith','fall','falls','false','familiar','families','family','famous',
-    'fans','fantasy','faqs','farm','fashion','fast','faster','father','favorite','fear','feature',
-    'featured','features','february','federal','feed','feedback','feeds','feel','feeling','fees',
-    'feet','fellow','felt','female','festival','fetish','fiction','field','fields','fifth',
-    'fight','fighting','figure','figures','file','filed','files','fill','filled','film','films',
-    'filter','filters','final','finally','finance','find','finder','finding','findings','finds',
-    'fine','finish','finished','finland','fire','firm','firms','first','fiscal','fish','fishing',
-    'fitness','five','fixed','flag','flash','flashing','flat','flexible','flight','flights',
-    'floor','florida','flow','flower','flowers','flying','focus','focused','folder','follow',
-    'followed','follows','font','food','foods','foot','football','force','forced','forces',
-    'ford','forecast','foreign','forest','forever','forget','forgot','form','formal','format',
-    'formats','formed','former','forms','formula','fort','forth','forum','forums','forward',
-    'found','four','fourth','frame','frames','france','frank','franklin','free','freedom','french',
-    'fresh','friday','friend','friendly','friends','from','front','fruit','fuel','full','fully',
-    'function','fund','funding','funds','funny','further','future','gain','gallery','gambling',
-    'game','games','gaming','gamma','gang','garage','garden','gardens','gary','gate','gateway',
-    'gave','gear','gender','gene','general','generate','generic','genetic','genre','george',
-    'georgia','german','germany','gets','getting','giant','gift','gifts','girl','girls','give',
-    'given','gives','giving','glass','global','glossary','goal','goals','goes','going','gold',
-    'golden','golf','gone','good','goods','google','gourmet','governor','grace','grade','graduate',
-    'grand','grant','granted','grants','graphic','graphics','gratis','gray','great','greater',
-    'greatest','greece','greek','green','grey','grid','gross','ground','group','groups','grow',
-    'growing','growth','guard','guardian','guess','guest','guests','guidance','guide','guides',
-    'guinea','guitar','guys','hair','hairy','half','hall','hamilton','hand','handle','handling',
-    'hands','happen','happened','happens','happy','hard','hardware','harris','harry','hate',
-    'have','having','hawaii','head','header','heads','health','healthy','hear','heard','hearing',
-    'heart','heat','heating','heaven','heavy','height','held','hello','help','helped','helpful',
-    'helping','helps','henry','here','heritage','hidden','hide','high','higher','highest','highly',
-    'highway','hill','hills','hilton','himself','hire','historic','history','hits','hobbies',
-    'hockey','hold','holdem','holder','holding','holds','hole','holiday','holidays','holy',
-    'home','homepage','homes','honda','hong','honor','hope','horror','horse','horses','hospital',
-    'host','hosted','hosting','hotel','hotels','hour','hours','house','houses','housing','houston',
-    'howard','however','html','huge','human','humor','hundred','hundreds','hunter','hunting',
-    'husband','icon','idaho','idea','ideal','ideas','identify','identity','illegal','illinois',
-    'image','images','imagine','imaging','impact','import','improve','improved','inch','inches',
-    'include','included','includes','income','increase','indeed','index','indexed','india',
-    'indian','indiana','indicate','industry','info','informed','initial','injuries','injury',
-    'inner','input','insert','inside','install','instance','instant','instead','intel','intended',
-    'interest','interior','internal','internet','into','investor','involved','iowa','ipod',
-    'iran','iraq','ireland','irish','iron','isbn','island','islands','israel','issue','issued',
-    'issues','italian','italy','item','items','itself','jack','jacket','jackson','james','jane',
-    'january','japan','japanese','jason','java','jazz','jean','jeff','jennifer','jersey','jesus',
-    'jewelry','jewish','jobs','john','johnson','join','joined','joint','jones','jordan','jose',
-    'joseph','journal','journals','journey','judge','july','jump','june','junior','just','justice',
-    'kansas','keep','keeping','kelly','kentucky','kept','kernel','kevin','keyboard','keys',
-    'keyword','keywords','kids','kill','killed','kind','kinds','king','kingdom','kitchen','kits',
-    'knew','know','known','knows','kong','korea','label','labels','labor','labour','lack','ladies',
-    'lady','lake','land','lane','language','laptop','laptops','large','larger','largest','laser',
-    'last','late','later','latest','latin','latina','launch','lawrence','laws','lawyer','lawyers',
-    'layer','layout','lead','leader','leaders','leading','leads','league','learn','learned',
-    'learning','lease','least','leather','leave','leaves','leaving','lecture','left','legal',
-    'legend','legs','leisure','length','lens','lesbian','lesbians','less','lesson','lessons',
-    'letter','letters','level','levels','lewis','liberal','liberty','library','license','licensed',
-    'lies','life','light','lighting','lights','like','likely','limit','limited','limits','lincoln',
-    'line','linear','lines','lingerie','link','linked','links','linux','liquid','list','listed',
-    'listen','listing','listings','lists','little','live','livecam','lived','lives','living',
-    'load','loading','loan','loans','local','located','location','lock','lodge','logged','logic',
-    'login','logo','logos','london','long','longer','look','looked','looking','looks','loop',
-    'lord','lose','loss','lost','lots','louis','lounge','love','loved','lower','lowest','luck',
-    'lunch','luxury','lyrics','machine','machines','made','madison','magazine','magic','magnetic',
-    'mail','mailing','main','maine','mainly','maintain','major','majority','make','maker','makes',
-    'making','malaysia','male','manage','managed','manager','managers','managing','manner',
-    'manual','many','mapping','maps','march','marine','mark','marked','market','markets','marks',
-    'marriage','married','marshall','martin','mary','maryland','mass','massage','massive','master',
-    'match','matches','matching','material','math','matrix','matt','matter','matters','matthew',
-    'mature','maximum','maybe','mean','meaning','means','meant','measure','measured','measures',
-    'meat','media','medical','medicine','medium','medline','meet','meeting','meetings','meets',
-    'member','members','memorial','memory','mens','mental','mention','menu','merchant','mesh',
-    'message','messages','metal','meter','method','methods','metro','mexico','miami','michael',
-    'michigan','micro','middle','might','mike','mile','miles','military','milk','miller','million',
-    'millions','mind','mine','mini','minimum','mining','minister','ministry','minor','minute',
-    'minutes','mirror','misc','miss','missed','missing','mission','missouri','mixed','mobile',
-    'mode','model','models','modem','modern','modified','modify','module','modules','moment',
-    'monday','money','monitor','monitors','monster','montana','month','monthly','months','moon',
-    'moore','more','morgan','morning','mortgage','most','mostly','mother','motion','motor',
-    'motorola','mount','mountain','mouse','mouth','move','moved','movement','movie','movies',
-    'moving','much','multi','multiple','muscle','museum','music','musical','must','myself',
-    'mysql','mystery','naked','name','named','names','narrow','nasa','nation','national','nations',
-    'native','natural','nature','navy','near','nearby','nearly','nebraska','neck','need','needed',
-    'needs','negative','neither','network','networks','nevada','never','newest','newly','news',
-    'next','nice','nick','night','nights','nine','nintendo','node','noise','nokia','none','normal',
-    'normally','north','northern','norway','note','notebook','noted','notes','nothing','notice',
-    'notices','notify','novel','november','nuclear','null','number','numbers','numerous','nurse',
-    'nursing','object','objects','observed','obtain','obtained','occur','occurred','occurs',
-    'ocean','october','offer','offered','offering','offers','office','officer','officers','offices',
-    'official','offline','often','ohio','oklahoma','older','once','ones','ongoing','online',
-    'only','ontario','onto','open','opened','opening','opera','operate','operator','opinion',
-    'opinions','optical','option','optional','options','oracle','oral','orange','order','ordered',
-    'ordering','orders','oregon','organic','oriented','origin','original','orlando','orleans',
-    'other','others','outdoor','outdoors','outlet','outlook','output','outside','over','overall',
-    'overview','owned','owner','owners','oxford','pacific','pack','package','packages','page',
-    'pages','paid','pain','paint','painting','pair','pakistan','palm','panel','pants','paper',
-    'papers','para','parallel','parent','parents','paris','park','parking','parks','part','parties',
-    'partner','partners','parts','party','pass','passed','password','past','patch','patent',
-    'path','patient','patients','patrick','pattern','patterns','paul','paying','payment','payments',
-    'paypal','peace','peak','pearl','peer','people','percent','perfect','perform','perhaps',
-    'period','periods','perl','permit','person','personal','persons','peter','pets','pharmacy',
-    'phase','phoenix','phone','phones','photo','photos','physical','physics','piano','pick',
-    'picks','pics','picture','pictures','piece','pieces','pilot','pink','pipe','place','placed',
-    'places','plain','plan','plane','planet','planned','planning','plans','plant','plants',
-    'plasma','plastic','plate','platform','play','played','player','players','playing','plays',
-    'please','pleasure','plot','plug','plus','pmid','pocket','poetry','point','points','poker',
-    'poland','police','policies','policy','politics','poll','polls','pool','poor','popular',
-    'port','portable','portal','portion','portland','ports','portugal','position','positive',
-    'possible','possibly','post','postage','postal','posted','poster','posters','posting','posts',
-    'potter','pounds','poverty','power','powered','powerful','powers','practice','prayer','prefer',
-    'pregnant','premier','premium','prepare','prepared','presence','present','presents','press',
-    'pressure','pretty','prev','prevent','preview','previous','price','prices','pricing','primary',
-    'prime','prince','print','printed','printer','printers','printing','prints','prior','priority',
-    'privacy','private','prize','probably','problem','problems','process','produce','produced',
-    'producer','product','products','profile','profiles','profit','program','programs','progress',
-    'project','projects','promise','promote','proof','proper','properly','property','proposal',
-    'proposed','protect','protein','proteins','protocol','proud','prove','provide','provided',
-    'provider','provides','province','public','pubmed','puerto','pull','pulse','pump','purchase',
-    'pure','purpose','purposes','pursuant','push','putting','python','quality','quantity','quarter',
-    'queen','query','question','quick','quickly','quiet','quite','quote','quotes','race','racing',
-    'radio','rail','rain','raise','raised','random','range','rank','rapid','rare','rate','rated',
-    'rates','rather','rating','ratings','ratio','reach','reached','reaction','read','reader',
-    'readers','reading','ready','real','reality','really','rear','reason','reasons','receive',
-    'received','recent','recently','recipe','recipes','record','recorded','records','recovery',
-    'reduce','reduced','refer','referred','reflect','reform','regard','region','regional','regions',
-    'register','registry','regular','related','relating','relation','relative','release','released',
-    'releases','relevant','reliable','relief','religion','remain','remains','remember','remote',
-    'removal','remove','removed','rent','rental','rentals','repair','replace','replies','reply',
-    'report','reported','reports','republic','request','requests','require','required','requires',
-    'research','reserve','reserved','resident','resort','resorts','resource','respect','respond',
-    'response','rest','result','results','resume','retail','return','returned','returns','revenue',
-    'reverse','review','reviewed','reviews','revised','revision','rice','rich','richard','ride',
-    'ridge','right','rights','ring','rings','ringtone','rise','risk','risks','river','road',
-    'robert','rock','role','roll','roman','romance','rome','room','rooms','root','rose','round',
-    'route','router','royal','rubber','rule','rules','running','runs','rural','russia','russian',
-    'ryan','safari','safe','safety','said','saint','salary','sale','sales','salt','same','sample',
-    'samples','samsung','sand','santa','sarah','saturday','save','saved','saving','savings',
-    'saying','says','scale','scan','scene','schedule','scheme','school','schools','science',
-    'sciences','scope','score','scores','scotland','scott','screen','script','scripts','seal',
-    'search','searches','season','seat','seats','seattle','second','seconds','secret','section',
-    'sections','sector','secure','security','seed','seeing','seek','seeking','seem','seemed',
-    'seems','seen','select','selected','self','sell','seller','sellers','selling','semester',
-    'semi','seminar','senate','send','sending','senior','sense','sent','separate','sequence',
-    'serial','series','serious','serve','served','server','servers','service','services','serving',
-    'session','sessions','sets','setting','settings','setup','seven','several','severe','sexual',
-    'shall','shape','share','shared','shares','sharing','sharp','sheet','sheets','shell','shift',
-    'ship','shipped','shipping','ships','shirt','shirts','shoe','shoes','shop','shopping','shops',
-    'short','shot','shots','should','show','showed','shower','showing','shown','shows','sick',
-    'side','sides','siemens','sign','signal','signed','signs','silver','similar','simon','simple',
-    'simply','since','single','singles','sister','site','sitemap','sites','sitting','size',
-    'sizes','skills','skin','skip','sleep','slide','slightly','slot','slow','small','smaller',
-    'smart','smith','smoke','smoking','smooth','snow','soccer','social','society','soft','software',
-    'soil','solar','sold','soldiers','solid','solution','some','someone','song','songs','sony',
-    'soon','sorry','sort','sorted','soul','sound','sounds','source','sources','south','southern',
-    'space','spain','spam','spanish','speak','speaker','speakers','speaking','special','specials',
-    'species','specific','specify','specs','speech','speed','spend','spending','spent','spirit',
-    'split','sponsor','sponsors','sport','sporting','sports','spot','spread','spring','springs',
-    'spyware','square','stable','staff','stage','stamps','stand','standard','standing','stands',
-    'star','stars','start','started','starting','starts','state','stated','states','static',
-    'station','stations','stats','status','stay','steel','step','stephen','steps','stereo',
-    'sterling','steve','stick','still','stock','stocks','stone','stop','storage','store','stored',
-    'stores','stories','storm','story','straight','strange','strategy','stream','street','strength',
-    'stress','strike','string','strip','strong','strongly','student','students','studies','studio',
-    'study','stuff','style','styles','subject','subjects','submit','success','such','sugar',
-    'suggest','suit','suitable','suite','suites','summary','summer','sunday','super','superior',
-    'supplied','supplier','supplies','supply','support','supports','supreme','sure','surface',
-    'surgery','survey','surveys','susan','sweden','sweet','swimming','swiss','switch','sydney',
-    'symbol','symptoms','system','systems','table','tables','tags','taiwan','take','taken',
-    'takes','taking','talk','talking','tampa','tank','tape','target','task','tasks','taste',
-    'taught','taxes','taylor','teach','teacher','teachers','teaching','team','teams','tech',
-    'teen','teens','tell','template','temple','tennis','term','terminal','terms','test','tested',
-    'testing','tests','texas','text','thailand','than','thank','thanks','that','theater','theatre',
-    'their','them','theme','themes','then','theory','therapy','there','these','they','thin',
-    'thing','things','think','thinking','third','this','thomas','thongs','those','though','thought',
-    'thoughts','thousand','thread','threads','threat','three','through','thursday','thus','ticket',
-    'tickets','tiffany','tight','till','time','times','tiny','tips','title','titles','today',
-    'together','told','toll','tomorrow','tone','tonight','tony','took','tool','tools','topic',
-    'topics','toronto','toshiba','total','totally','touch','tour','tourism','tours','toward',
-    'towards','tower','town','toys','track','tracking','tracks','trade','trading','traffic',
-    'trail','trailer','train','training','transfer','transit','travel','treat','treated','tree',
-    'trees','trends','trial','tried','trip','trips','tropical','trouble','truck','true','truly',
-    'trust','truth','trying','tube','tuesday','turkey','turn','turned','turns','tutorial','twenty',
-    'twice','twin','type','types','typical','ultimate','ultra','unable','under','union','unique',
-    'unit','united','units','universe','unix','unknown','unless','until','upcoming','update',
-    'updated','updates','upgrade','upload','upon','upper','urban','usage','used','useful','user',
-    'username','users','uses','using','usual','usually','utah','utility','vacation','valid',
-    'valley','valuable','value','values','variable','variety','various','vary','vegas','vehicle',
-    'vehicles','vendor','vermont','version','versions','vertical','very','vice','victoria',
-    'victory','video','videos','vietnam','view','viewed','viewing','views','villa','village',
-    'vintage','vinyl','violence','virgin','virginia','virtual','virus','visa','vision','visit',
-    'visiting','visitor','visitors','visits','visual','voice','void','voip','voltage','volume',
-    'vote','votes','voting','wait','waiting','wales','walk','walking','wall','want','wanted',
-    'wants','warm','warning','warranty','wars','waste','watch','watches','watching','water',
-    'waters','wave','wayne','ways','weapons','wear','weather','weblog','website','websites',
-    'wedding','week','weekend','weekly','weeks','weight','welcome','welfare','well','went',
-    'were','west','western','what','whatever','wheel','wheels','when','where','whether','which',
-    'while','white','whole','whom','whose','wide','width','wife','wild','wildlife','will','william',
-    'williams','willing','wilson','wind','window','windows','wine','wing','wings','winner',
-    'winning','winter','wire','wireless','wish','with','within','without','woman','women','womens',
-    'wonder','wood','word','words','work','worked','worker','workers','working','works','workshop',
-    'world','worst','worth','would','write','writer','writers','writing','written','wrong',
-    'wrote','wyoming','xbox','yahoo','yeah','year','years','yellow','york','young','your','yours',
-    'yourself','youth','zealand','zero','zone','zoom'
-  ];
-  const SYMBOLS = '!@#$%^&*-_=+?';
-
-  const toggleSeparator = document.getElementById('toggleSeparator');
-  const readout = document.getElementById('readout');
+  const actionRows = document.getElementById('actionRows');
+  const addRowBtn = document.getElementById('addRowBtn');
+  const actionCount = document.getElementById('actionCount');
   const generateBtn = document.getElementById('generateBtn');
-  const copyBtn = document.getElementById('copyBtn');
+  const summaryWrap = document.getElementById('summaryWrap');
+  const summaryTitle = document.getElementById('summaryTitle');
+  const summaryMeta = document.getElementById('summaryMeta');
+  const summaryContent = document.getElementById('summaryContent');
+  const exportBtn = document.getElementById('exportBtn');
   const copiedTag = document.getElementById('copiedTag');
-  const gaugeSegs = document.querySelectorAll('.gauge-seg');
-  const strengthWord = document.getElementById('strengthWord');
 
-  let currentPassword = '';
-
-  function secureRandomInt(max) {
-    const arr = new Uint32Array(1);
-    const limit = Math.floor(0xFFFFFFFF / max) * max;
-    let val;
-    do { crypto.getRandomValues(arr); val = arr[0]; } while (val >= limit);
-    return val % max;
+  function updateActionCount() {
+    actionCount.textContent = actionRows.querySelectorAll('.action-row').length;
   }
 
-  function pickWord() {
-    return WORDS[secureRandomInt(WORDS.length)];
+  function addActionRow(discussion = '', action = '', who = '') {
+    const row = document.createElement('div');
+    row.className = 'action-row';
+    row.innerHTML = `
+      <input type="text" class="discussion-input" placeholder="What was discussed" value="${discussion}">
+      <input type="text" class="action-input" placeholder="What needs to happen" value="${action}">
+      <input type="text" class="who-input" placeholder="Owner" value="${who}">
+      <button class="remove-row" aria-label="Remove row">×</button>
+    `;
+    row.querySelector('.remove-row').addEventListener('click', () => { row.remove(); updateActionCount(); });
+    actionRows.appendChild(row);
+    updateActionCount();
   }
 
-  function capitalize(w) {
-    return w.charAt(0).toUpperCase() + w.slice(1);
+  addRowBtn.addEventListener('click', () => addActionRow());
+  addActionRow();
+  addActionRow();
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  function generatePassword() {
-    let w1 = pickWord();
-    let w2 = pickWord();
-    while (w2 === w1) w2 = pickWord();
-
-    const sep = toggleSeparator.checked ? '-' : '';
-    const digits = String(secureRandomInt(10)) + String(secureRandomInt(10));
-    const sym1 = SYMBOLS[secureRandomInt(SYMBOLS.length)];
-    let sym2 = SYMBOLS[secureRandomInt(SYMBOLS.length)];
-    while (sym2 === sym1) sym2 = SYMBOLS[secureRandomInt(SYMBOLS.length)];
-
-    return capitalize(w1) + sep + w2 + digits + sym1 + sym2;
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 
-  function renderPassword(pw) {
-    readout.innerHTML = '';
-    if (!pw) {
-      readout.innerHTML = '<span class="readout-empty">Press generate to forge a password</span>';
-      return;
+  function generateSummary() {
+    const title = document.getElementById('meetingTitle').value.trim() || 'Untitled meeting';
+    const date = document.getElementById('meetingDate').value;
+    const attendees = document.getElementById('attendees').value.trim();
+    const discussion = document.getElementById('discussion').value.trim();
+
+    const actions = Array.from(actionRows.querySelectorAll('.action-row')).map(row => ({
+      discussion: row.querySelector('.discussion-input').value.trim(),
+      action: row.querySelector('.action-input').value.trim(),
+      who: row.querySelector('.who-input').value.trim()
+    })).filter(a => a.discussion || a.action);
+
+    summaryTitle.textContent = title;
+    const metaParts = [];
+    if (date) metaParts.push(formatDate(date));
+    if (attendees) metaParts.push('Attendees: ' + attendees);
+    summaryMeta.textContent = metaParts.join('  ·  ');
+
+    let html = '';
+
+    if (discussion) {
+      html += `<div class="summary-section"><p class="summary-section-label blue"><span class="dot"></span>Discussion &amp; decisions</p><div class="summary-text">${escapeHtml(discussion)}</div></div>`;
     }
-    pw.split('').forEach((ch, i) => {
-      const tile = document.createElement('span');
-      tile.className = 'tile';
-      tile.textContent = ch;
-      tile.style.animationDelay = (i * 12) + 'ms';
-      readout.appendChild(tile);
-    });
-  }
+    if (actions.length) {
+      html += `<div class="summary-section"><p class="summary-section-label amber"><span class="dot"></span>Action items</p>`;
+      html += `<table class="summary-table"><thead><tr><th>Discussion</th><th>Action required</th><th>Who</th></tr></thead><tbody>`;
+      actions.forEach(a => {
+        const whoHtml = a.who ? `<span class="who-tag">${escapeHtml(a.who)}</span>` : '';
+        html += `<tr><td>${escapeHtml(a.discussion)}</td><td>${escapeHtml(a.action)}</td><td class="who-cell">${whoHtml}</td></tr>`;
+      });
+      html += `</tbody></table></div>`;
+    }
 
-  function calcStrength(pw) {
-    let classes = 0;
-    if (/[A-Z]/.test(pw)) classes++;
-    if (/[a-z]/.test(pw)) classes++;
-    if (/[0-9]/.test(pw)) classes++;
-    if (/[^A-Za-z0-9]/.test(pw)) classes++;
+    if (!discussion && !actions.length) {
+      html = '<p class="empty-note">Nothing recorded yet.</p>';
+    }
 
-    if (pw.length >= 14 && classes === 4) return 4;
-    if (pw.length >= 10 && classes >= 3) return 3;
-    if (pw.length >= 6 && classes >= 2) return 2;
-    return 1;
-  }
-
-  function renderStrength(score) {
-    const labels = ['—', 'weak', 'fair', 'good', 'strong'];
-    const colors = ['', 'var(--weak)', 'var(--fair)', 'var(--good)', 'var(--strong)'];
-    gaugeSegs.forEach((seg, i) => {
-      seg.style.background = i < score ? colors[score] : 'var(--hairline)';
-    });
-    strengthWord.textContent = labels[score];
-    strengthWord.style.color = score ? colors[score] : 'var(--bone-dim)';
-  }
-
-  function generate() {
-    currentPassword = generatePassword();
-    renderPassword(currentPassword);
-    renderStrength(calcStrength(currentPassword));
+    summaryContent.innerHTML = html;
+    summaryWrap.dataset.summaryData = JSON.stringify({ title, metaLine: metaParts.join('  ·  '), discussion, actions });
+    summaryWrap.classList.add('visible');
+    summaryWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
     copiedTag.textContent = '';
   }
 
-  toggleSeparator.addEventListener('change', generate);
-  generateBtn.addEventListener('click', generate);
+  generateBtn.addEventListener('click', generateSummary);
 
-  copyBtn.addEventListener('click', async () => {
-    if (!currentPassword) return;
+  exportBtn.addEventListener('click', async () => {
+    const raw = summaryWrap.dataset.summaryData;
+    if (!raw) return;
+    const data = JSON.parse(raw);
+
+    copiedTag.textContent = 'PREPARING DOCUMENT…';
+
     try {
-      await navigator.clipboard.writeText(currentPassword);
-      copiedTag.textContent = 'COPIED TO CLIPBOARD';
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } = docx;
+
+      const children = [];
+
+      children.push(new Paragraph({
+        heading: HeadingLevel.TITLE,
+        children: [new TextRun({ text: data.title })]
+      }));
+
+      if (data.metaLine) {
+        children.push(new Paragraph({
+          spacing: { after: 300 },
+          children: [new TextRun({ text: data.metaLine, color: '666666', size: 20 })]
+        }));
+      }
+
+      if (data.discussion) {
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 200, after: 120 },
+          children: [new TextRun({ text: 'Discussion & Decisions' })]
+        }));
+        data.discussion.split('\n').forEach(line => {
+          if (line.trim()) {
+            children.push(new Paragraph({ spacing: { after: 100 }, children: [new TextRun({ text: line })] }));
+          }
+        });
+      }
+
+      if (data.actions && data.actions.length) {
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 300, after: 120 },
+          children: [new TextRun({ text: 'Action Items' })]
+        }));
+
+        const headerCell = (text) => new TableCell({
+          shading: { fill: 'EAF0FA' },
+          children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })]
+        });
+        const bodyCell = (text) => new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: text || '' })] })]
+        });
+
+        const rows = [
+          new TableRow({
+            tableHeader: true,
+            children: [headerCell('Discussion'), headerCell('Action required'), headerCell('Who')]
+          }),
+          ...data.actions.map(a => new TableRow({
+            children: [bodyCell(a.discussion), bodyCell(a.action), bodyCell(a.who)]
+          }))
+        ];
+
+        children.push(new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows
+        }));
+      }
+
+      const doc = new Document({
+        sections: [{ properties: {}, children }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const safeName = (data.title || 'meeting-summary').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+      a.download = `${safeName}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      copiedTag.textContent = 'DOWNLOADED';
       setTimeout(() => { copiedTag.textContent = ''; }, 1800);
     } catch (e) {
-      copiedTag.textContent = 'COPY FAILED — SELECT MANUALLY';
+      console.error(e);
+      copiedTag.textContent = 'EXPORT FAILED — TRY AGAIN';
     }
   });
 </script>
